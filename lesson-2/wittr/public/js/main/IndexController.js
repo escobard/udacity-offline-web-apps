@@ -29,11 +29,11 @@ IndexController.prototype._registerServiceWorker = function() {
 
 // service worker registration instructor notes
  if(!navigator.serviceWorker) return;
- navigator.ServiceWorker.register('/sw.js').then(function(){
+ navigator.serviceWorker.register('/sw.js').then(function(){
   console.log('Registration Worked!')
  }).catch(function(){
   console.log('Registartion Failed!')
- })
+ });
 };
 
 // open a connection to the server for live updates

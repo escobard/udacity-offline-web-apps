@@ -8,7 +8,33 @@ export default function IndexController(container) {
   this._toastsView = new ToastsView(this._container);
   this._lostConnectionToast = null;
   this._openSocket();
+  this._registerServiceWorker();
 }
+
+IndexController.prototype._registerServiceWorker = function() {
+  // service worker registration customized from MDN 
+  /* if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js', {scope: './'}).then(function(registration) {
+    console.log('success!');
+  }).catch(function(error) {
+   console.log(error);
+  });
+} else {
+  // The current browser doesn't support service workers.
+  var aElement = document.createElement('a');
+  aElement.href = 'http://www.chromium.org/blink/serviceworker/service-worker-faq';
+  aElement.textContent = 'unavailable';
+  document.querySelector('#status').appendChild(aElement);
+} */
+
+// service worker registration instructor notes
+ if(!navigator.serviceWorker) return;
+ navigator.ServiceWorker.register('/sw.js').then(function(){
+  console.log('Registration Worked!')
+ }).catch(function(){
+  console.log('Registartion Failed!')
+ })
+};
 
 // open a connection to the server for live updates
 IndexController.prototype._openSocket = function() {

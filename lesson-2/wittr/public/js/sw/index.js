@@ -1,4 +1,10 @@
 self.addEventListener('fetch', function(event) {
-	  console.log('Service Request');
+	 /* original responses
+	 
+	   console.log('Service Request');
 	  console.log(event.request);
+	  */
+	 event.respondWith(
+	 	new Response('Hello World')
+	 	);
 });

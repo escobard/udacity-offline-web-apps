@@ -5,6 +5,10 @@ self.addEventListener('fetch', function(event) {
 	  console.log(event.request);
 	  */
 	 event.respondWith(
-	 	new Response('Hello World')
+	 	// this is an object
+	 	new Response('Hello <br>World<br>', {
+	 	// the headers property takes an object of header's and values
+	 		headers: {'foo':'bar' }
+	 	})
 	 	);
 });

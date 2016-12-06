@@ -1,3 +1,4 @@
 self.addEventListener('fetch', function(event) {
-  console.log('event.request');
+	  console.log('Service Request');
+	  console.log(event.request);
 });

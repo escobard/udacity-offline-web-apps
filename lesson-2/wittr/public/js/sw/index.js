@@ -6,9 +6,9 @@ self.addEventListener('fetch', function(event) {
 	  */
 	 event.respondWith(
 	 	// this is an object
-	 	new Response('Hello <br>World<br>', {
+	 	new Response('<strong class="a-winner-is-me">Hello <br>World<br></strong>', {
 	 	// the headers property takes an object of header's and values
-	 		headers: {'foo':'bar' }
+	 		headers: {'content-type':'text/html' }
 	 	})
 	 	);
 });

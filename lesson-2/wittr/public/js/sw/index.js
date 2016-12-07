@@ -3,7 +3,7 @@ self.addEventListener('fetch', function(event) {
 	 
 	   console.log('Service Request');
 	  console.log(event.request);
-	  */
+	  
 	 
 	 // this logs the data requests on page load
 	 console.log(event.request);
@@ -20,4 +20,22 @@ self.addEventListener('fetch', function(event) {
 	 	// the headers property takes an object of header's and values
 	 		headers: {'content-type':'text/html' }
 	 	}) */	
+	event.respondWith(
+		// creates the fetch event where the request is fetched
+		fetch(event.request)
+		// creates the then statement if the fetch promise was succesful
+		.then(function(response) {
+			// if response fails
+			if (response.status == 404){
+				return new Response('Whoops, not found');
+			}
+			// otherwise return the response
+			return response;
+		})
+		// this catches an error for the ORIGINAL fetch request, this will run in cases the application is offline
+		.catch(function(){
+			// this is the returned response when the original fetch event is rejected / failed
+			return new Response('Uh oh, that totally failed')
+		})
+		);
 });

@@ -1,3 +1,9 @@
+self.addEventListener('install', function(event){
+	event.waitUntil(
+		);
+});
+
+// fetches event functions of the service worker
 self.addEventListener('fetch', function(event) {
 	 /* original responses
 	 

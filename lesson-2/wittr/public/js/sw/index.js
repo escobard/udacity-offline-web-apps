@@ -27,7 +27,7 @@ self.addEventListener('fetch', function(event) {
 		.then(function(response) {
 			// if response fails
 			if (response.status == 404){
-				return new Response('Whoops, not found');
+				return fetch('/imgs/dr-evil.gif');
 			}
 			// otherwise return the response
 			return response;

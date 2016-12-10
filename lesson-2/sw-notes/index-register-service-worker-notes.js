@@ -11,25 +11,25 @@ export default function IndexController(container) {
   this._registerServiceWorker();
 }
 
+// registering a service worker, this is how below
 IndexController.prototype._registerServiceWorker = function() {
   if (!navigator.serviceWorker) return;
 
-  var indexController = this;
-
   navigator.serviceWorker.register('/sw.js').then(function(reg) {
-    // TODO: if there's no controller, this page wasn't loaded
-    // via a service worker, so they're looking at the latest version.
-    // In that case, exit early
-    if(!navigator.serviceWorker.controller) return;
+    console.log('Registration worked!');
+  }).catch(function() {
+    console.log('Registration failed!');
+  });
 
-    // TODO: if there's an updated worker already waiting, call
-    // indexController._updateReady()
-    if (reg.waiting){
-      indexController._updateReady();
-    };
-    // TODO: if there's an updated worker installing, track its
-    // progress. If it becomes "installed", call
-    // indexController._updateReady()
+  // service worker registration also accepts the following arguments to further modify service workers
+  // the dev tools area of service workers is actually just taking the below service worker arguments
+  /*
+  reg.unregister();
+  reg.update();
+  
+  reg.installing;
+  // on reg.installing:
+    // set a variable to call the installing method
     var sw = reg.installing;
     
     // function for controlling SW state when there is an update in progress:
@@ -42,32 +42,60 @@ IndexController.prototype._registerServiceWorker = function() {
 
           // this can have any kind of states attached to register, for example if SW is installed and waiting activation
           if (this.state == 'installed'){
-            indexController._updateReady();
-          };
-        });
-      };
+            // there's an update ready, do something here
+          }
+        })
+      }
+    // logs the installing state of the service worker
+    console.log(sw.state); // can emit the following states:
 
-    // TODO: otherwise, listen for new installing workers arriving.
-    // If one arrives, track its progress.
-    // If it becomes "installed", call
-    // indexController._updateReady()
-    reg.addEventListener('updatefound', function(){
+      // "installing" - SW is installing, but hasn't completed yet
+      // "installed" - SW completed succesfully but hasn't yet activated
+      // "activating" - the SW activate event has fired but is not yet complete, or activated
+      // "activated" - the SW has activated, and ready to receive search events
+      // "redundant" - the SW has been thrown away - happens when the SW has been preceded by a newers service worker, or fails to instll
+   
+   reg.waiting;
+  // on reg.waiting - if there is a waiting worker then there is an update ready and waiting, example here:
+    // 
+    if (reg.waiting){
+      // there is an update waiting!
+    }
+  reg.active;
+  
+  // when an update is found, the ServiceWorker.register object will add the following event
+  reg.addEventListener('updatefound', function(){
 
     // reg.installing has changed, do something here, for example
     reg.installing.addEventListener('statechange', function(){
       // checks states
-      if (this.state ==='installing') {
-        indexController._updateReady()
-      };
-    });
-  });
-  });
-};
+      if (this.state ==='state string') {
+        // there's an update ready, do something
+      }
+    })
+  })
 
-IndexController.prototype._updateReady = function() {
-  var toast = this._toastsView.show("New version available", {
-    buttons: ['whatever']
-  });
+  // the SW fires an event when it's state changes, which is the following
+
+  sw.addEventListener('statechange', function(){
+    // says the SW state has changed - with whatever the value of the property that changes
+  })
+
+  // this refers to the service worker that controls the current page 
+  navigator.serviceWorker.controller
+
+  // if there is no controller, or in other words if the page did not load using a service worker then the following can be used to control view
+  if(!navigator.serviceWorker.controller) {
+    // page didn't load using a service worker function
+  }
+
+  // this skips waiting on the SW and installs immediately on refresh
+  // self.skipWaiting()
+
+  // send messages / changes to the service worker using the following function
+  reg.installing.postMessage({foo: 'bar'});
+   */
+  }
 };
 
 // open a connection to the server for live updates

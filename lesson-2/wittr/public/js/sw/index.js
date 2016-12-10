@@ -3,7 +3,8 @@ self.addEventListener('install', function(event) {
     // TODO: change the site's theme, eg swap the vars in public/scss/_theme.scss
     // Ensure at least $primary-color changes
     // TODO: change cache name to 'wittr-static-v2'
-    caches.open('wittr-static-v1').then(function(cache) {
+    // changed from witter-static-v1
+    caches.open('wittr-static-v2').then(function(cache) {
       return cache.addAll([
         '/',
         'js/main.js',
@@ -17,8 +18,16 @@ self.addEventListener('install', function(event) {
 });
 
 self.addEventListener('activate', function(event) {
+  // this was grabbed from : https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers
+  // Not working too well in our case, will review instructor quiz
   event.waitUntil(
-    // TODO: remove the old cache
+     caches.keys().then(function(keyList) {
+      return Promise.all(keyList.map(function(key) {
+        if (cacheWhitelist.indexOf(key) === -1) {
+          return caches.delete(key);
+        }
+      }));
+    })
   );
 });
 

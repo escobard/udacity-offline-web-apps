@@ -18,16 +18,21 @@ self.addEventListener('install', function(event) {
 });
 
 self.addEventListener('activate', function(event) {
+
+  event.waitUntil(
+  // this was grabbed from the instructor notes, deletes the old cache without any issues.   
+    return caches.delete('witter-static-v1')
+
   // this was grabbed from : https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers
   // Not working too well in our case, will review instructor quiz
-  event.waitUntil(
+    /*
      caches.keys().then(function(keyList) {
       return Promise.all(keyList.map(function(key) {
         if (cacheWhitelist.indexOf(key) === -1) {
           return caches.delete(key);
         }
       }));
-    })
+    })*/
   );
 });
 

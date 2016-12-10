@@ -30,6 +30,7 @@ IndexController.prototype._registerServiceWorker = function() {
     // TODO: if there's an updated worker installing, track its
     // progress. If it becomes "installed", call
     // indexController._updateReady()
+    /* this is my own answer to the problem
     var sw = reg.installing;
     
     // function for controlling SW state when there is an update in progress:
@@ -46,11 +47,19 @@ IndexController.prototype._registerServiceWorker = function() {
           };
         });
       };
+      */
+    // this is the instructors answer to the problem:
+    if (reg.installing) {
+      // go to rack installing for callback
+      indexController._trackInstalling(reg.installing)
+    }
 
+    
     // TODO: otherwise, listen for new installing workers arriving.
     // If one arrives, track its progress.
     // If it becomes "installed", call
     // indexController._updateReady()
+    /* this is my answer to the problem
     reg.addEventListener('updatefound', function(){
 
     // reg.installing has changed, do something here, for example
@@ -60,7 +69,22 @@ IndexController.prototype._registerServiceWorker = function() {
         indexController._updateReady()
       };
     });
+  }); */
+
+    // this is the instructors answer
+  reg.addEventListener('updatefound', function(){
+    indexController._trackInstalling(reg.installing);
   });
+};
+
+// instructor notes prototype
+IndexController.prototype._trackInstalling = function (worker) {
+  var indexController = this;
+
+  worker.addEventListener('statechange', function(){
+    if (worker.state == 'installed') {
+      indexController._updateReady();
+    }
   });
 };
 

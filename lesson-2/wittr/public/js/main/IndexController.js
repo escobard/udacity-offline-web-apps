@@ -11,6 +11,7 @@ export default function IndexController(container) {
   this._registerServiceWorker();
 }
 
+// registering a service worker, this is how below
 IndexController.prototype._registerServiceWorker = function() {
   if (!navigator.serviceWorker) return;
 

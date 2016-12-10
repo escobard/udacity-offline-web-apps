@@ -94,8 +94,23 @@ IndexController.prototype._registerServiceWorker = function() {
 
   // send messages / changes to the service worker using the following function
   reg.installing.postMessage({foo: 'bar'});
-   */
+   
+  
+  /* this function does something with a service worker message
+  // self.addEventListener('message', function(event){
+      // if you want to skip waiting add the self.skipWaiting() function
+      
+      // retrieves the message data
+      event.data; // in this case it would be the object {foo: 'bar'}
+     })
   }
+
+  // this adds the controller for when the SW changes
+  navigator.serviceWorker.addEventListener('controllerchange', function(){
+    // navigator.serviceWorker.controller has changed
+    // do something here, could refresh the page
+  })
+  */
 };
 
 // open a connection to the server for live updates

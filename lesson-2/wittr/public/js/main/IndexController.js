@@ -11,14 +11,62 @@ export default function IndexController(container) {
   this._registerServiceWorker();
 }
 
-// registering a service worker, this is how below
 IndexController.prototype._registerServiceWorker = function() {
   if (!navigator.serviceWorker) return;
 
-  navigator.serviceWorker.register('/sw.js').then(function() {
-    console.log('Registration worked!');
-  }).catch(function() {
-    console.log('Registration failed!');
+  var indexController = this;
+
+  navigator.serviceWorker.register('/sw.js').then(function(reg) {
+    // TODO: if there's no controller, this page wasn't loaded
+    // via a service worker, so they're looking at the latest version.
+    // In that case, exit early
+    if(!navigator.serviceWorker.controller) return;
+
+    // TODO: if there's an updated worker already waiting, call
+    // indexController._updateReady()
+    if (reg.waiting){
+      indexController._updateReady();
+    };
+    // TODO: if there's an updated worker installing, track its
+    // progress. If it becomes "installed", call
+    // indexController._updateReady()
+    var sw = reg.installing;
+    
+    // function for controlling SW state when there is an update in progress:
+
+      // checks if registration is installing
+      if (reg.installing) {
+
+        // if so, adds an event listener to track the registration state change
+        reg.installing.addEventListener('statechange', function(){
+
+          // this can have any kind of states attached to register, for example if SW is installed and waiting activation
+          if (this.state == 'installed'){
+            indexController._updateReady();
+          };
+        });
+      };
+
+    // TODO: otherwise, listen for new installing workers arriving.
+    // If one arrives, track its progress.
+    // If it becomes "installed", call
+    // indexController._updateReady()
+    reg.addEventListener('updatefound', function(){
+
+    // reg.installing has changed, do something here, for example
+    reg.installing.addEventListener('statechange', function(){
+      // checks states
+      if (this.state ==='installing') {
+        indexController._updateReady()
+      };
+    });
+  });
+  });
+};
+
+IndexController.prototype._updateReady = function() {
+  var toast = this._toastsView.show("New version available", {
+    buttons: ['whatever']
   });
 };
 

@@ -40,9 +40,9 @@ self.addEventListener('fetch', function(event) {
   var requestURL = new URL(event.request.url);
 
   // checks to see if the request URL is the same as the current origin
-  if (requestUrl.origin === location.origin) {
+  if (requestURL.origin === location.origin) {
     //after the first request is true, checks if the user's request URL is the root
-    if (requestUrl.pathname ==='/') {
+    if (requestURL.pathname ==='/') {
       // and if so, responds with the /skeleton URL instead
       // grabs the /skeleton URL straight, from the cache
       event.respondWith(caches.match('/skeleton'));

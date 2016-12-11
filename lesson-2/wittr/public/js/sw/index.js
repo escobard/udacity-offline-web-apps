@@ -39,6 +39,15 @@ self.addEventListener('fetch', function(event) {
 });
 
 self.addEventListener('message', function(event){
+  // missing the if statement to catch the postMessage here
+  //  self.skipWaiting()
+
+  // this was added from instructor notes
+  // Don't have to use this exact object in the message, but since it was used in IndexController.js, this is the response
+  // that can be catched in the if statement
+  // this is the proper way to call skipWaiting here
+  if (event.data.action =='skipWaiting') {
     self.skipWaiting()
+  };
 });
-//
+// testsdfasdfasadfaasdfsadfaasdf

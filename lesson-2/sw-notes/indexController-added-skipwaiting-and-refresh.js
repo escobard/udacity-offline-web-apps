@@ -41,8 +41,12 @@ IndexController.prototype._registerServiceWorker = function() {
     navigator.serviceWorker.addEventListener('controllerchange', function(){
     // navigator.serviceWorker.controller has changed
     // do something here, could refresh the page
-    self.skipWaiting();
-    indexController._updateReady();
+    // my version of the code didn't work too well, scrapped for instructor code
+    // indexController._updateReady();
+    // location.reload();
+    
+    // this was grabbed from the instructor notes, all that had to happen was a page refresh, which can be done with:
+    window.location.reload();
   })
 };
 
@@ -62,7 +66,10 @@ IndexController.prototype._updateReady = function(worker) {
 
   toast.answer.then(function(answer) {
     if (answer != 'refresh') return;
-    self.skipWaiting(); 
+    // my answer did not work, since post message was not used on the worker
+    // skipWaiting();
+    // this skips waiting by sending an action to the service worker, grabbed from instructor answer
+    worker.postMessage({action: 'skipWaiting'}); 
   });
 };
 

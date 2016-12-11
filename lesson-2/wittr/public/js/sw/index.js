@@ -1,5 +1,5 @@
 var staticCacheName = 'wittr-static-v2';
-// t
+
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(staticCacheName).then(function(cache) {
@@ -38,4 +38,7 @@ self.addEventListener('fetch', function(event) {
   );
 });
 
-// ARGHEASDAS
+self.addEventListener('message', function(event){
+    self.skipWaiting()
+});
+//

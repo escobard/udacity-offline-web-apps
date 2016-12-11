@@ -17,52 +17,80 @@ IndexController.prototype._registerServiceWorker = function() {
   var indexController = this;
 
   navigator.serviceWorker.register('/sw.js').then(function(reg) {
-    if (!navigator.serviceWorker.controller) {
-      return;
-    }
+    // TODO: if there's no controller, this page wasn't loaded
+    // via a service worker, so they're looking at the latest version.
+    // In that case, exit early
+    if(!navigator.serviceWorker.controller) return;
 
-    if (reg.waiting) {
-      indexController._updateReady(reg.waiting);
-      return;
-    }
+    // TODO: if there's an updated worker already waiting, call
+    // indexController._updateReady()
+    if (reg.waiting){
+      indexController._updateReady();
+    };
+    // TODO: if there's an updated worker installing, track its
+    // progress. If it becomes "installed", call
+    // indexController._updateReady()
+    /* this is my own answer to the problem
+    var sw = reg.installing;
+    
+    // function for controlling SW state when there is an update in progress:
 
+      // checks if registration is installing
+      if (reg.installing) {
+
+        // if so, adds an event listener to track the registration state change
+        reg.installing.addEventListener('statechange', function(){
+
+          // this can have any kind of states attached to register, for example if SW is installed and waiting activation
+          if (this.state == 'installed'){
+            indexController._updateReady();
+          };
+        });
+      };
+      */
+    // this is the instructors answer to the problem:
     if (reg.installing) {
-      indexController._trackInstalling(reg.installing);
-      return;
+      // go to rack installing for callback
+      indexController._trackInstalling(reg.installing)
     }
 
-    reg.addEventListener('updatefound', function() {
-      indexController._trackInstalling(reg.installing);
+    
+    // TODO: otherwise, listen for new installing workers arriving.
+    // If one arrives, track its progress.
+    // If it becomes "installed", call
+    // indexController._updateReady()
+    /* this is my answer to the problem
+    reg.addEventListener('updatefound', function(){
+
+    // reg.installing has changed, do something here, for example
+    reg.installing.addEventListener('statechange', function(){
+      // checks states
+      if (this.state ==='installing') {
+        indexController._updateReady()
+      };
     });
-  });
+  }); */
 
-  // TODO: listen for the controlling service worker changing
-  // and reload the page
-    navigator.serviceWorker.addEventListener('controllerchange', function(){
-    // navigator.serviceWorker.controller has changed
-    // do something here, could refresh the page
-    self.skipWaiting();
-    indexController._updateReady();
-  })
+    // this is the instructors answer
+  reg.addEventListener('updatefound', function(){
+    indexController._trackInstalling(reg.installing);
+  });
 };
 
-IndexController.prototype._trackInstalling = function(worker) {
+// instructor notes prototype
+IndexController.prototype._trackInstalling = function (worker) {
   var indexController = this;
-  worker.addEventListener('statechange', function() {
+
+  worker.addEventListener('statechange', function(){
     if (worker.state == 'installed') {
-      indexController._updateReady(worker);
+      indexController._updateReady();
     }
   });
 };
 
-IndexController.prototype._updateReady = function(worker) {
+IndexController.prototype._updateReady = function() {
   var toast = this._toastsView.show("New version available", {
-    buttons: ['refresh', 'dismiss']
-  });
-
-  toast.answer.then(function(answer) {
-    if (answer != 'refresh') return;
-    self.skipWaiting(); 
+    buttons: ['whatever']
   });
 };
 

@@ -198,3 +198,43 @@ dbPromise.then(function(db){
 }).then(function(val){
   console.log('Age', val);
 });
+
+// the following can be used to create Cursors for index calues
+dbPromise.then(function(db){
+  var transaction = db.transaction('people');
+
+  var peopleRead = transaction.objectStore('people');
+
+  var ageIndex = peopleRead.index('age');
+
+  // this returns the cursos
+  return ageIndex.openCursor();
+}).then(function logPerson(cursor){
+  // if the cursor value is null, then return
+  if (!cursor) return;
+  //
+  // cursor grabs values by object properties, the following grabs value and name
+  console.log('Cursored at:', cursor.value.name);
+
+  // returns the promise for the next cursor or leaves it undefined if there isnt a cursor
+  return cursor.continue()
+  // if cursor is valid, then it returns the next cursor value, or person in this case
+  // creates a loop that runs through all the values
+  .then(logPerson);
+
+  // other optional values for cursor are:
+  // cursor.update(newValue) - updates the current cursor with a value of our choice
+  // cursor.delete() - deletes the current cursor
+})
+
+// this can be used to skip cursor values, for example:
+.then(function(cursor){
+  if (!cursor) return;
+
+  // this skips the number of items specified in the function argument
+  return cursor.advance(2);
+})
+.then(function(){
+  // this is only ran when the cursor has ran through all the DB values, and we are not at the end of the list
+  console.log('Done cursoring');
+});

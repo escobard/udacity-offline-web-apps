@@ -5,7 +5,7 @@ import idb from 'idb';
 // Example: 
 // This returns a promise, let's store that for later with a var
 
-var dbPromise = idb.open('test-db', 3, 
+var dbPromise = idb.open('test-db', 4, 
   // this defines the database
   function(upgradeDb){
     
@@ -44,7 +44,15 @@ var dbPromise = idb.open('test-db', 3,
       peopleStore.createIndex('animal', 'favoriteAnimal');
 
       // the code to list all the people will be modified to sort results by favoriteAnimal below
+    
+    // upgrading to version 4, for the quiz in lesson 3
+    case 3:
+      var peopleStore = upgradeDb.transaction.objectStore('people');
+
+      peopleStore.createIndex('age', 'age');
     }
+
+    
 
 });
 
@@ -174,4 +182,19 @@ dbPromise.then(function(db){
   // 
 }).then(function(val){
   console.log('People:', val);
+});
+
+// index promise to grab the values of the 'age' index of the 'people' objectStore
+dbPromise.then(function(db){
+  var transaction = db.transaction('people');
+
+  // this calls the object store (DB) we want to display
+  var peopleRead = transaction.objectStore('people');
+
+  // this calls the index we created for case 2 of this DB
+  var ageIndex = peopleRead.index('age');
+
+  return ageIndex.getAll();
+}).then(function(val){
+  console.log('Age', val);
 });

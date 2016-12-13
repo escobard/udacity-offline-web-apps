@@ -5,7 +5,7 @@ import idb from 'idb';
 // Example: 
 // This returns a promise, let's store that for later with a var
 
-var dbPromise = idb.open('test-db', 2, 
+var dbPromise = idb.open('test-db', 3, 
   // this defines the database
   function(upgradeDb){
     
@@ -34,6 +34,16 @@ var dbPromise = idb.open('test-db', 2,
       // This sets the object's 'name' as the key, which is stored by name rather than by key
       // when adding new object stores, the version needs to be changed
       upgradeDb.createObjectStore('people', {keyPath: 'name'});
+
+    // upgrading to a new version, to filter out DB results, by favorite animal.
+    // Must create a new case, created below
+    case 2:
+      var peopleStore = upgradeDb.transaction.objectStore('people');
+
+      // this creates an index, which sorts the 'vaforiteanimal' property
+      peopleStore.createIndex('animal', 'favoriteAnimal');
+
+      // the code to list all the people will be modified to sort results by favoriteAnimal below
     }
 
 });
@@ -145,8 +155,18 @@ dbPromise.then(function(db){
   // this calls the object store (DB) we want to display
   var peopleRead = transaction.objectStore('people');
 
+  // this calls the index we created for case 2 of this DB
+  var animalIndex = peopleRead.index('animal');
+
   // this returns all keys and values within the people objectSTore
-  return peopleRead.getAll();
+  // return peopleRead.getAll();
+
+  // this returns the key values sorting them by the index we created for animals
+  // return animalIndex.getAll();
+
+  // this returns the key values of this objectStore that contain the getAll argument value.
+  // Example:
+  return animalIndex.getAll('cat')
 
   // once fulfilled, this logs the values of the people store
   // this grabs ALL the values of the DB and logs them in alphabetical order

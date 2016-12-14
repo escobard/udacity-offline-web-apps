@@ -9,12 +9,27 @@ function openDatabase() {
     return Promise.resolve();
   }
 
-  return idb.open('wittr', 1, function(upgradeDb) {
-    var store = upgradeDb.createObjectStore('wittrs', {
-      keyPath: 'id'
-    });
-    store.createIndex('by-date', 'time');
-  });
+  // TODO: return a promise for a database called 'wittr'
+  // that contains one objectStore: 'wittrs'
+  // that uses 'id' as its key
+  // and has an index called 'by-date', which is sorted
+  // by the 'time' property
+
+// creates the wittr DB 
+var dbPromise = idb.open('wittr', 3, function(upgradeDb){
+    
+    // this creates a switch to update the browser with the new version of the indexDB, to the new one
+    switch(upgradeDb.oldVersion){
+
+     // case 0 is called if the browser does not have the first version installed, then it installs it if it does not 
+      case 0:
+      // this store has a key that's separate to the data, which is what we want to store in keyvalStore
+      var wittrStore = upgradeDb.createObjectStore('wittrs', {keyPath: 'id'});
+
+      wittrStore.createIndex('by-date', 'time');
+    };
+
+});
 }
 
 export default function IndexController(container) {
@@ -22,14 +37,9 @@ export default function IndexController(container) {
   this._postsView = new PostsView(this._container);
   this._toastsView = new ToastsView(this._container);
   this._lostConnectionToast = null;
+  this._openSocket();
   this._dbPromise = openDatabase();
   this._registerServiceWorker();
-
-  var indexController = this;
-
-  this._showCachedMessages().then(function() {
-    indexController._openSocket();
-  });
 }
 
 IndexController.prototype._registerServiceWorker = function() {
@@ -64,24 +74,6 @@ IndexController.prototype._registerServiceWorker = function() {
     if (refreshing) return;
     window.location.reload();
     refreshing = true;
-  });
-};
-
-IndexController.prototype._showCachedMessages = function() {
-  var indexController = this;
-
-  return this._dbPromise.then(function(db) {
-    // if we're already showing posts, eg shift-refresh
-    // or the very first load, there's no point fetching
-    // posts from IDB
-    if (!db || indexController._postsView.showingPosts()) return;
-
-    // TODO: get all of the wittr message objects from indexeddb,
-    // then pass them to:
-    // indexController._postsView.addPosts(messages)
-    // in order of date, starting with the latest.
-    // Remember to return a promise that does all this,
-    // so the websocket isn't opened until you're done!
   });
 };
 
@@ -157,11 +149,17 @@ IndexController.prototype._onSocketMessage = function(data) {
   this._dbPromise.then(function(db) {
     if (!db) return;
 
-    var tx = db.transaction('wittrs', 'readwrite');
-    var store = tx.objectStore('wittrs');
-    messages.forEach(function(message) {
-      store.put(message);
+      // TODO: put each message into the 'wittrs'
+      // object store.
+    var transaction = db.transaction('wittrs', 'readwrite');
+
+    var wittrStore = transaction.objectStore('wittrs');
+
+    // needed to create a forEach loop to pass the messages
+    messages.forEach(function(message){
+      wittrStore.put(message);
     });
+
   });
 
   this._postsView.addPosts(messages);

@@ -76,36 +76,13 @@ IndexController.prototype._showCachedMessages = function() {
     // posts from IDB
     if (!db || indexController._postsView.showingPosts()) return;
 
-    // TODO: get all of the wittr message objects from indexeddb,
-    // then pass them to:
-    // indexController._postsView.addPosts(messages)
-    // in order of date, starting with the latest.
-    // Remember to return a promise that does all this,
-    // so the websocket isn't opened until you're done!
-    
-    /* my own answer :
-        var transaction = db.transaction('wittrs');
-    var wittrMessages = transaction.objectStore('wittrs');
-    var dateIndex = wittrMessages.index('by-date');
-    return dateIndex.getAll().then(function(messages){
-      indexController._postsView.addPosts(messages);
-    }) */
-    
-   
-    // shortened instructor answer using one variable to handle entire DB transaction:
-    var dateIndex = db.transaction('wittrs').objectStore('wittrs').index('by-date');
+    var index = db.transaction('wittrs')
+      .objectStore('wittrs').index('by-date');
 
-    // to return index and everything in the index, and returns a .then after the dateIndex promise is fulfilled
-    // can not call a .then statement after the this._dbPromise statement, because this returns a different set of data than the transaction promise
-    return dateIndex.getAll().then(function(messages){
-    // after messages have been retrieved, displays them into the postView constructor.
-      indexController._postsView.addPosts(messages
-        // this reverses the order of the posts when they get added, as its in descending not ascending order currently
-        .reverse()
-        );
-    })
-
+    return index.getAll().then(function(messages) {
+      indexController._postsView.addPosts(messages.reverse());
     });
+  });
 };
 
 IndexController.prototype._trackInstalling = function(worker) {
@@ -186,38 +163,14 @@ IndexController.prototype._onSocketMessage = function(data) {
       store.put(message);
     });
 
-    // TODO: keep the newest 30 entries in 'wittrs',
-    // but delete the rest.
-    //
-    // Hint: you can use .openCursor(null, 'prev') to
-    // open a cursor that goes through an index/store
-    // backwards.
-    
-    /* my answer:
-    var storeIndex = store.index('by-date');
-
-    return storeIndex.openCursor(null, 'prev').then(function(cursor){
-      if (!cursor) {
-        return;
-      }
-      else if (cursor > 28){
-        cursor.delete()
-      }
+    // limit store to 30 items
+    store.index('by-date').openCursor(null, "prev").then(function(cursor) {
+      return cursor.advance(30);
+    }).then(function deleteRest(cursor) {
+      if (!cursor) return;
+      cursor.delete();
+      return cursor.continue().then(deleteRest);
     });
-    */ 
-   
-   // instructor answer
-   store.index('by-date').openCursor(null, 'prev').then(function(cursor){
-    // this advances the cursor by 30 DB entries
-    return cursor.advance(30);
-   }).then(function deleteRest(cursor){
-    // this returns if there is no cursor
-    if (!cursor) return;
-    // if there is a cursor, deletes all entries past 30 defined in the previous promise
-    cursor.delete();
-    // once deleted, continues, and entries again if more than 30 entries are found
-    return cursor.continue().then(deleteRest);
-   })
   });
 
   this._postsView.addPosts(messages);

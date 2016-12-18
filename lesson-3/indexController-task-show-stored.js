@@ -185,6 +185,39 @@ IndexController.prototype._onSocketMessage = function(data) {
     messages.forEach(function(message) {
       store.put(message);
     });
+
+    // TODO: keep the newest 30 entries in 'wittrs',
+    // but delete the rest.
+    //
+    // Hint: you can use .openCursor(null, 'prev') to
+    // open a cursor that goes through an index/store
+    // backwards.
+    
+    /* my answer:
+    var storeIndex = store.index('by-date');
+
+    return storeIndex.openCursor(null, 'prev').then(function(cursor){
+      if (!cursor) {
+        return;
+      }
+      else if (cursor > 28){
+        cursor.delete()
+      }
+    });
+    */ 
+   
+   // instructor answer
+   store.index('by-date').openCursor(null, 'prev').then(function(cursor){
+    // this advances the cursor by 30 DB entries
+    return cursor.advance(30);
+   }).then(function deleteRest(cursor){
+    // this returns if there is no cursor
+    if (!cursor) return;
+    // if there is a cursor, deletes all entries past 30 defined in the previous promise
+    cursor.delete();
+    // once deleted, continues, and entries again if more than 30 entries are found
+    return cursor.continue().then(deleteRest);
+   })
   });
 
   this._postsView.addPosts(messages);

@@ -90,8 +90,8 @@ function servePhoto(request) {
       return fetch(request).then(function(networkResponse){
         cache.put(storageUrl, networkResponse.clone());
         return networkResponse;
-      })
-    })
+      });
+    });
   })
 }
 

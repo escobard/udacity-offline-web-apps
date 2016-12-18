@@ -82,6 +82,13 @@ IndexController.prototype._showCachedMessages = function() {
     // in order of date, starting with the latest.
     // Remember to return a promise that does all this,
     // so the websocket isn't opened until you're done!
+    
+    var transaction = db.transaction('wittrs');
+    var wittrMessages = transaction.objectStore('wittrs');
+    var dateIndex = wittrMessages.index('by-date');
+    return dateIndex.getAll();
+  }).then(function(messages){
+    indexController._postsView.addPosts(messages);
   });
 };
 
@@ -151,7 +158,6 @@ IndexController.prototype._openSocket = function() {
 };
 
 // called when the web socket sends message data
-// this can be used to store JSON fetch data into an indexDB database, keep this in mind
 IndexController.prototype._onSocketMessage = function(data) {
   var messages = JSON.parse(data);
 

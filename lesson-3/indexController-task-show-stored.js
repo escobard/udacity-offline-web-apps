@@ -82,7 +82,30 @@ IndexController.prototype._showCachedMessages = function() {
     // in order of date, starting with the latest.
     // Remember to return a promise that does all this,
     // so the websocket isn't opened until you're done!
-  });
+    
+    /* my own answer :
+        var transaction = db.transaction('wittrs');
+    var wittrMessages = transaction.objectStore('wittrs');
+    var dateIndex = wittrMessages.index('by-date');
+    return dateIndex.getAll().then(function(messages){
+      indexController._postsView.addPosts(messages);
+    }) */
+    
+   
+    // shortened instructor answer using one variable to handle entire DB transaction:
+    var dateIndex = db.transaction('wittrs').objectStore('wittrs').index('by-date');
+
+    // to return index and everything in the index, and returns a .then after the dateIndex promise is fulfilled
+    // can not call a .then statement after the this._dbPromise statement, because this returns a different set of data than the transaction promise
+    return dateIndex.getAll().then(function(messages){
+    // after messages have been retrieved, displays them into the postView constructor.
+      indexController._postsView.addPosts(messages
+        // this reverses the order of the posts when they get added, as its in descending not ascending order currently
+        .reverse()
+        );
+    })
+
+    });
 };
 
 IndexController.prototype._trackInstalling = function(worker) {
@@ -151,7 +174,6 @@ IndexController.prototype._openSocket = function() {
 };
 
 // called when the web socket sends message data
-// this can be used to store JSON fetch data into an indexDB database, keep this in mind
 IndexController.prototype._onSocketMessage = function(data) {
   var messages = JSON.parse(data);
 

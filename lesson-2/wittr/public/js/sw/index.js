@@ -76,7 +76,8 @@ function serveAvatar(request) {
   // to update the entry in the cache.
   //
   // Note that this is slightly different to servePhoto!
-  // my own answer
+  
+  /* my own answer
   return caches.open(contentImgsCache).then(function(cache) {
     return cache.match(storageUrl).then(function(response) {
       if (response) return response;
@@ -86,7 +87,26 @@ function serveAvatar(request) {
         return networkResponse;
       });
     });  
-});
+}); */
+
+  // instructor answer:
+  return caches.open(contentImgsCache).then(function(cache){
+    return cache.match(storageUrl).then(function(response){
+
+      // if there is a response to the storageUrl regex
+      var networkFetch = fetch(request).then(function(networkResponse){
+
+        //copies the url and data over to the imagsCache
+        cache.put(storageUrl, networkResponse.clone());
+
+        // returns the networkFetch fetch.then promise function argument
+        return networkResponse;
+      });
+
+    // returns the caches.match response or he networkFetch response
+    return response || networkFetch;
+    });
+  });
 }
 //
 function servePhoto(request) {

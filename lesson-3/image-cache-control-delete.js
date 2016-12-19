@@ -189,6 +189,7 @@ IndexController.prototype._cleanImageCache = function() {
           // push that message data into the imagesNeeded array
           imagesNeeded.push(message.photo);
         }
+        imagesNeeded.push(message.avatar);
       })
 
     // opens the images cache by using caches.open()

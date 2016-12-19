@@ -28,7 +28,6 @@ export default function IndexController(container) {
 
   var indexController = this;
 
-  // this clears the image cache after 5 minutes
   setInterval(function() {
     indexController._cleanImageCache();
   }, 1000 * 60 * 5);
@@ -156,70 +155,31 @@ IndexController.prototype._openSocket = function() {
   });
 };
 
-
-// calls the method to cleanthe image cache
 IndexController.prototype._cleanImageCache = function() {
   return this._dbPromise.then(function(db) {
     if (!db) return;
 
-    // TODO: open the 'wittr' object store, get all the messages,
-    // gather all the photo urls.
-    //
-    // Open the 'wittr-content-imgs' cache, and delete any entry
-    // that you no longer need.
-    // instructor code to clean image cache
-    // 
-    // create array of images to store images that we need
     var imagesNeeded = [];
 
-    // creates transaction for the 'wittrs' data
-    var transaction = db.transaction('wittrs');
-
-    // returns the 'wittrs' object store and gets all it's messages
-    return transaction.objectStore('wittrs').getAll()
-
-    // returns a promise after the 'wittrs' object store hase been fetched 
-    .then(function(messages){
-
-      // for each message object in messages
-      messages.forEach(function(message){
-      // if the message object contains a .photo property
+    var tx = db.transaction('wittrs');
+    return tx.objectStore('wittrs').getAll().then(function(messages) {
+      messages.forEach(function(message) {
         if (message.photo) {
-
-          // push that message data into the imagesNeeded array
           imagesNeeded.push(message.photo);
         }
-      })
+        imagesNeeded.push(message.avatar);
+      });
 
-    // opens the images cache by using caches.open()
-    return caches.open('wittr-content-imgs');
-
-    // returns a promise with all the requests stored in the images cache
-    }).then(function(cache){
-      return cache.keys().then(function(requests){
-
-        //for each request stored within the images cache
-        requests.forEach(function(request){
-
-          // more on this here : https://developer.mozilla.org/en/docs/Web/API/URL/URL
+      return caches.open('wittr-content-imgs');
+    }).then(function(cache) {
+      return cache.keys().then(function(requests) {
+        requests.forEach(function(request) {
           var url = new URL(request.url);
-
-          // if the pathname of the URL in the cache is not within the imagesNeeded array that stores the original JSON data above
-          if (!imagesNeeded.includes(url.pathname)){
-
-            // delete the URLs that are not included in the imagesNeeded array
-            cache.delete(request);
-          }
-        })
-      })
-
-
-    })
-
-    
-    
-    
-  })
+          if (!imagesNeeded.includes(url.pathname)) cache.delete(request);
+        });
+      });
+    });
+  });
 };
 
 // called when the web socket sends message data

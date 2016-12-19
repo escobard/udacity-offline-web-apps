@@ -50,7 +50,7 @@ self.addEventListener('fetch', function(event) {
     // TODO: respond to avatar urls by responding with
     // the return value of serveAvatar(event.request)
     // my own answer
-    if (requestUrl.pathname.startsWith('/avatar/')) {
+    if (requestUrl.pathname.startsWith('/avatars/')) {
       event.respondWith(serveAvatar(event.request));
       return;
     }

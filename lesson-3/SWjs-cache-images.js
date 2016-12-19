@@ -71,7 +71,7 @@ function servePhoto(request) {
   // But storageUrl has the -800px.jpg bit missing.
   // Use this url to store & match the image in the cache.
   // This means you only store one copy of each photo.
-  // this grabs the Regex used to store images
+  // this grabs the Regex used to store images, and responds with the appropriate image dimension based on browser size, very neat
   var storageUrl = request.url.replace(/-\d+px\.jpg$/, '');
 
   // TODO: return images from the "wittr-content-imgs" cache
